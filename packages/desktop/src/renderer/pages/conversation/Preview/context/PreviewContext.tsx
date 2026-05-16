@@ -24,10 +24,12 @@ export interface PreviewMetadata {
   title?: string;
   diff?: string;
   file_name?: string;
-  file_path?: string; // 工作空间文件的绝对路径 / Absolute file path in workspace
-  workspace?: string; // 工作空间根目录 / Workspace root directory
-  editable?: boolean; // 是否可编辑 / Whether editable
-  truncated?: boolean; // 预览内容是否被截断 / Whether preview content was truncated
+  file_path?: string;
+  workspace?: string;
+  conversationId?: string;
+  relativePath?: string;
+  editable?: boolean;
+  truncated?: boolean;
 }
 
 export interface PreviewTab {

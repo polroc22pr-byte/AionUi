@@ -28,18 +28,21 @@ import SelectionToolbar from '../renderers/SelectionToolbar';
 import { useContainerScroll, useContainerScrollTarget } from '../../hooks/useScrollSyncHelpers';
 import { convertLatexDelimiters } from '@/renderer/utils/chat/latexDelimiters';
 import MermaidBlock from '@/renderer/components/Markdown/MermaidBlock';
+import { fetchFileAsBlob } from '@/renderer/utils/file/staticFile';
 
 interface MarkdownPreviewProps {
-  content: string; // Markdown 内容 / Markdown content
-  onClose?: () => void; // 关闭回调 / Close callback
-  hideToolbar?: boolean; // 隐藏工具栏 / Hide toolbar
-  viewMode?: 'source' | 'preview'; // 外部控制的视图模式 / External view mode
-  onViewModeChange?: (mode: 'source' | 'preview') => void; // 视图模式改变回调 / View mode change callback
-  onContentChange?: (content: string) => void; // 内容改变回调 / Content change callback
-  containerRef?: React.RefObject<HTMLDivElement>; // 容器引用，用于滚动同步 / Container ref for scroll sync
-  onScroll?: (scrollTop: number, scrollHeight: number, clientHeight: number) => void; // 滚动回调 / Scroll callback
-  file_path?: string; // 当前 Markdown 文件的绝对路径 / Absolute file path of current markdown
+  content: string;
+  onClose?: () => void;
+  hideToolbar?: boolean;
+  viewMode?: 'source' | 'preview';
+  onViewModeChange?: (mode: 'source' | 'preview') => void;
+  onContentChange?: (content: string) => void;
+  containerRef?: React.RefObject<HTMLDivElement>;
+  onScroll?: (scrollTop: number, scrollHeight: number, clientHeight: number) => void;
+  file_path?: string;
   workspace?: string;
+  conversationId?: string;
+  relativePath?: string;
 }
 
 const isDataOrRemoteUrl = (value?: string): boolean => {
@@ -55,6 +58,7 @@ const isAbsoluteLocalPath = (value?: string): boolean => {
 interface MarkdownImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   baseDir?: string;
   workspace?: string;
+  conversationId?: string;
 }
 
 const useImageResolverCache = () => {
@@ -88,7 +92,7 @@ const useImageResolverCache = () => {
   return resolve;
 };
 
-const MarkdownImage: React.FC<MarkdownImageProps> = ({ src, alt, baseDir, workspace, ...props }) => {
+const MarkdownImage: React.FC<MarkdownImageProps> = ({ src, alt, baseDir, workspace, conversationId, ...props }) => {
   const [resolvedSrc, setResolvedSrc] = useState<string | undefined>(undefined);
   const resolveImage = useImageResolverCache();
 
@@ -118,6 +122,30 @@ const MarkdownImage: React.FC<MarkdownImageProps> = ({ src, alt, baseDir, worksp
           return;
         }
         setResolvedSrc(src);
+        return;
+      }
+
+      if (conversationId) {
+        const relativeSrc = src.replace(/\\/g, '/');
+        resolveImage(`static:${conversationId}:${relativeSrc}`, () => fetchFileAsBlob(conversationId, relativeSrc))
+          .then((blobUrl) => {
+            if (!cancelled) setResolvedSrc(blobUrl);
+          })
+          .catch(async () => {
+            const normalizedBase = baseDir ? baseDir.replace(/\\/g, '/') : undefined;
+            const cleanedSrc = src.replace(/\\/g, '/');
+            const absolutePath = isAbsoluteLocalPath(cleanedSrc)
+              ? cleanedSrc
+              : normalizedBase
+                ? joinPath(normalizedBase, cleanedSrc)
+                : undefined;
+            if (absolutePath && !cancelled) {
+              const dataUrl = await ipcBridge.fs.getImageBase64.invoke({ path: absolutePath, workspace });
+              if (!cancelled) setResolvedSrc(dataUrl ?? src);
+            } else if (!cancelled) {
+              setResolvedSrc(src);
+            }
+          });
         return;
       }
 
@@ -156,7 +184,7 @@ const MarkdownImage: React.FC<MarkdownImageProps> = ({ src, alt, baseDir, worksp
     return () => {
       cancelled = true;
     };
-  }, [src, baseDir, resolveImage, workspace]);
+  }, [src, baseDir, resolveImage, workspace, conversationId]);
 
   if (!resolvedSrc) {
     return alt ? <span>{alt}</span> : null;
@@ -209,6 +237,8 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
   onScroll: externalOnScroll,
   file_path,
   workspace,
+  conversationId,
+  relativePath,
 }) => {
   const { t } = useTranslation();
   const internalContainerRef = useRef<HTMLDivElement>(null);
@@ -306,6 +336,31 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
         return;
       }
 
+      if (conversationId) {
+        const relativeSrc = rawAttr.replace(/\\/g, '/');
+        void fetchFileAsBlob(conversationId, relativeSrc)
+          .then((blobUrl) => {
+            img.src = blobUrl;
+          })
+          .catch(async () => {
+            const normalizedBase = baseDir ? baseDir.replace(/\\/g, '/') : undefined;
+            const cleanedSrc = rawAttr.replace(/\\/g, '/');
+            const absolutePath = isAbsoluteLocalPath(cleanedSrc)
+              ? cleanedSrc
+              : normalizedBase
+                ? joinPath(normalizedBase, cleanedSrc)
+                : undefined;
+            if (absolutePath) {
+              const dataUrl = await ipcBridge.fs.getImageBase64.invoke({ path: absolutePath, workspace });
+              if (dataUrl) img.src = dataUrl;
+            }
+          })
+          .finally(() => {
+            seen.add(img);
+          });
+        return;
+      }
+
       const normalizedBase = baseDir ? baseDir.replace(/\\/g, '/') : undefined;
       const cleanedSrc = rawAttr.replace(/\\/g, '/');
       const absolutePath = isAbsoluteLocalPath(cleanedSrc)
@@ -350,7 +405,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [baseDir, containerRef, viewMode, displayedContent, workspace]);
+  }, [baseDir, containerRef, viewMode, displayedContent, workspace, conversationId]);
 
   return (
     <div className='flex flex-col w-full h-full overflow-hidden'>
@@ -440,7 +495,16 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
               rehypePlugins={[rehypeRaw, rehypeKatex]}
               components={{
                 img({ src, alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) {
-                  return <MarkdownImage src={src} alt={alt} baseDir={baseDir} workspace={workspace} {...props} />;
+                  return (
+                    <MarkdownImage
+                      src={src}
+                      alt={alt}
+                      baseDir={baseDir}
+                      workspace={workspace}
+                      conversationId={conversationId}
+                      {...props}
+                    />
+                  );
                 },
                 table({ children, ...props }: React.HTMLAttributes<HTMLTableElement>) {
                   return (
