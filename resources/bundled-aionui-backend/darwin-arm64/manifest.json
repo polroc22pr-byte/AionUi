@@ -1,0 +1,11 @@
+{
+  "platform": "darwin",
+  "arch": "arm64",
+  "version": "v0.1.0",
+  "generatedAt": "2026-05-13T05:40:05.879Z",
+  "sourceType": "download",
+  "source": {
+    "url": "https://github.com/iOfficeAI/aionui-backend/releases/download/v0.1.0/aionui-backend-v0.1.0-aarch64-apple-darwin.tar.gz"
+  },
+  "files": ["aionui-backend"]
+}

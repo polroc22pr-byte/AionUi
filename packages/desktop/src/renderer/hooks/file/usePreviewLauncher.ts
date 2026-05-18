@@ -152,7 +152,10 @@ export const usePreviewLauncher = () => {
             const convId = conversationContext?.conversation_id;
             let content: string | null = null;
             const withTimeout = <T>(p: Promise<T>) =>
-              Promise.race([p, new Promise<never>((_, reject) => setTimeout(() => reject(new Error('File read timeout')), 5000))]);
+              Promise.race([
+                p,
+                new Promise<never>((_, reject) => setTimeout(() => reject(new Error('File read timeout')), 5000)),
+              ]);
 
             if (convId && relativePath) {
               try {
