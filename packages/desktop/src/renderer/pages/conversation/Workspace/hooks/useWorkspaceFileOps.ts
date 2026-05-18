@@ -303,6 +303,47 @@ export function useWorkspaceFileOps(options: UseWorkspaceFileOpsOptions) {
         closeContextMenu();
 
         const ext = nodeData.name.toLowerCase().split('.').pop() || '';
+
+        const BINARY_EXTENSIONS = new Set([
+          'db',
+          'db-shm',
+          'db-wal',
+          'sqlite',
+          'sqlite3',
+          'exe',
+          'dll',
+          'so',
+          'dylib',
+          'bin',
+          'dat',
+          'zip',
+          'tar',
+          'gz',
+          'bz2',
+          'xz',
+          '7z',
+          'rar',
+          'woff',
+          'woff2',
+          'ttf',
+          'otf',
+          'eot',
+          'class',
+          'pyc',
+          'pyo',
+          'o',
+          'obj',
+          'a',
+          'lib',
+        ]);
+        const fullExt = nodeData.name.toLowerCase().replace(/^[^.]*\.?/, '');
+        if (BINARY_EXTENSIONS.has(ext) || BINARY_EXTENSIONS.has(fullExt)) {
+          messageApi.warning(
+            t('conversation.workspace.contextMenu.unsupportedFileType') || 'This file type cannot be previewed'
+          );
+          return;
+        }
+
         let contentType: PreviewContentType = getContentTypeByExtension(nodeData.name);
         let content = '';
         let isLargeTextTruncated = false;
