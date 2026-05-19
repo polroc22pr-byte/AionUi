@@ -39,9 +39,18 @@ export const groupConversationsByWorkspace = (
 
   conversations.forEach((conv) => {
     const workspace = conv.extra?.workspace;
-    const custom_workspace = conv.extra?.custom_workspace;
+    // Authoritative source: backend derives this on every read by checking
+    // whether `extra.workspace` lives under `workspace_root`. We must NOT
+    // fall back to `extra.custom_workspace` here — that's a renderer-side
+    // shim derived in `apiModelMapper.fromApiConversation` only when the
+    // backend hasn't already provided the flag, and it returns `true` for
+    // any non-empty `workspace`, which would surface every auto-provisioned
+    // `{label}-temp-{id}/` directory as its own "project" group
+    // (ELECTRON-1BT followup).
+    const isTemporaryWorkspace = (conv.extra as { is_temporary_workspace?: boolean } | undefined)
+      ?.is_temporary_workspace;
 
-    if (custom_workspace && workspace) {
+    if (workspace && !isTemporaryWorkspace) {
       if (!allWorkspaceGroups.has(workspace)) {
         allWorkspaceGroups.set(workspace, []);
       }
