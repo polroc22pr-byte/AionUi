@@ -568,6 +568,21 @@ export const fileStream = {
   }>('fileStream.contentUpdate'),
 };
 
+// Workspace watcher — real-time directory change subscriptions
+// ---------------------------------------------------------------------------
+
+export type WorkspaceChangeKind = 'create' | 'modify' | 'delete' | 'rename';
+
+export interface WorkspaceChange {
+  path: string;
+  kind: WorkspaceChangeKind;
+}
+
+export const workspaceWatcher = {
+  changed: wsEmitter<{ workspace: string; changes: WorkspaceChange[] }>('workspace.changed'),
+  overflow: wsEmitter<{ workspace: string }>('workspace.overflow'),
+};
+
 // File snapshot providers
 export const fileSnapshot = {
   init: httpPost<import('@/common/types/platform/fileSnapshot').SnapshotInfo, { workspace: string }>(

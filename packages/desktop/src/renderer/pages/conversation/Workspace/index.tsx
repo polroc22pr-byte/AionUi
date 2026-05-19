@@ -29,6 +29,7 @@ import { useWorkspaceModals } from './hooks/useWorkspaceModals';
 import { useWorkspacePaste } from './hooks/useWorkspacePaste';
 import { useWorkspaceSearch } from './hooks/useWorkspaceSearch';
 import { useWorkspaceTree } from './hooks/useWorkspaceTree';
+import { useWorkspaceWatcher } from './hooks/useWorkspaceWatcher';
 import type { WorkspaceProps, WorkspaceTab } from './types';
 import {
   computeContextMenuPosition,
@@ -64,6 +65,14 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
   // Initialize all hooks
   const { isWorkspaceCollapsed, setIsWorkspaceCollapsed } = useWorkspaceCollapse();
   const treeHook = useWorkspaceTree({ workspace, conversation_id, eventPrefix });
+  const watcherHook = useWorkspaceWatcher({
+    workspace,
+    conversation_id,
+    expandedKeys: treeHook.expandedKeys,
+    collapsed: isWorkspaceCollapsed,
+    setFiles: treeHook.setFiles,
+    refreshWorkspace: treeHook.refreshWorkspace,
+  });
   const modalsHook = useWorkspaceModals();
   const pasteHook = useWorkspacePaste({
     conversation_id: conversation_id,
@@ -476,7 +485,12 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
                   emitter.emit(`${eventPrefix}.selected.file`, items);
                 }}
                 onExpand={(keys) => {
-                  treeHook.setExpandedKeys(keys);
+                  const prevKeys = treeHook.expandedKeys;
+                  const expanded = (keys as string[]).filter((k) => !prevKeys.includes(k));
+                  const collapsed = prevKeys.filter((k) => !(keys as string[]).includes(k));
+                  treeHook.setExpandedKeys(keys as string[]);
+                  if (expanded.length > 0) watcherHook.onDirsExpand(expanded);
+                  if (collapsed.length > 0) watcherHook.onDirsCollapse(collapsed);
                 }}
                 loadMore={(treeNode) => {
                   const path = treeNode.props.dataRef.fullPath;

@@ -6,6 +6,7 @@
 
 import { ipcBridge } from '@/common';
 import type { PreviewContentType } from '@/common/types/office/preview';
+import { fetchFileAsText } from '@/renderer/utils/file/staticFile';
 import { emitter } from '@/renderer/utils/emitter';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -341,18 +342,9 @@ export const PreviewProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setDomSnippets([]);
   }, []);
 
-  // Track last-known mtime per file path for external change detection
-  const fileMtimeRef = useRef<Map<string, number>>(new Map());
-
   const closeTab = useCallback(
     (tabId: string) => {
       setTabs((prevTabs) => {
-        // Clean up mtime record for the closed tab
-        const tabToClose = prevTabs.find((tab) => tab.id === tabId);
-        if (tabToClose?.metadata?.file_path) {
-          fileMtimeRef.current.delete(tabToClose.metadata.file_path);
-        }
-
         const newTabs = prevTabs.filter((tab) => tab.id !== tabId);
 
         // 如果关闭的是当前激活的 tab / If closing the active tab
@@ -568,74 +560,36 @@ export const PreviewProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, [closeTab]); // 只依赖 closeTab，不依赖 tabs，避免重复订阅 / Only depend on closeTab, not tabs, to avoid re-subscribing
 
-  // File mtime polling: detect external file changes (Claude Code CLI, Gemini, etc.) by comparing lastModified.
-  // Only polls the active tab to minimize IPC overhead; checks other tabs once on tab switch.
-  // Uses polling instead of fileWatch IPC events because buildEmitter's main→renderer event delivery
-  // is unreliable after the first emission in Electron (only the first event reaches the renderer).
-  const checkFileUpdate = useCallback(
-    (tab: PreviewTab) => {
-      const file_path = tab.metadata?.file_path;
-      if (!file_path || tab.isDirty || savingFilesRef.current.has(file_path)) return;
-
-      void ipcBridge.fs.getFileMetadata
-        .invoke({ path: file_path, workspace: tab.metadata?.workspace })
-        .then((metadata) => {
-          if (!metadata) return;
-          const prevMtime = fileMtimeRef.current.get(file_path);
-          fileMtimeRef.current.set(file_path, metadata.lastModified);
-          if (prevMtime === undefined || metadata.lastModified === prevMtime) return;
-
-          const readPromise =
-            tab.content_type === 'image'
-              ? ipcBridge.fs.getImageBase64.invoke({ path: file_path, workspace: tab.metadata?.workspace })
-              : ipcBridge.fs.readFile.invoke({ path: file_path, workspace: tab.metadata?.workspace });
-
-          void readPromise
-            .then((content) => {
-              if (content == null) return;
-              setTabs((latest) =>
-                latest.map((t) => {
-                  if (t.metadata?.file_path !== file_path) return t;
-                  if (savingFilesRef.current.has(file_path) || t.isDirty) return t;
-                  return { ...t, content, originalContent: content, isDirty: false };
-                })
-              );
-            })
-            .catch((error) => {
-              console.error('[PreviewContext] Failed to read file after mtime change:', file_path, error);
-            });
-        })
-        .catch((error) => {
-          console.error('[PreviewContext] Failed to get file metadata:', file_path, error);
-        });
-    },
-    [setTabs]
-  );
-
-  // Keep a ref to activeTab so the polling interval always sees the latest object
-  // without re-running the effect on every tabs state change.
-  const activeTabRef = useRef<PreviewTab | null>(null);
-  activeTabRef.current = activeTab;
-
-  const activeFilePath = activeTab?.metadata?.file_path;
-
-  // Poll active tab every 1s
   useEffect(() => {
-    if (!activeFilePath) return;
+    const handler = ({ workspace, relativePath }: { workspace: string; relativePath: string }) => {
+      const filePath = `${workspace}/${relativePath}`;
+      setTabs((prevTabs) => {
+        const tab = prevTabs.find((t) => t.metadata?.file_path === filePath);
+        if (!tab || tab.isDirty || savingFilesRef.current.has(filePath)) return prevTabs;
 
-    const pollId = setInterval(() => {
-      const current = activeTabRef.current;
-      if (current) checkFileUpdate(current);
-    }, 1000);
+        const convId = tab.metadata?.conversationId;
+        const relPath = tab.metadata?.relativePath || relativePath;
+        if (convId && relPath) {
+          void fetchFileAsText(convId, relPath).then((content) => {
+            setTabs((latest) =>
+              latest.map((t) => {
+                if (t.metadata?.file_path !== filePath) return t;
+                if (t.isDirty || savingFilesRef.current.has(filePath)) return t;
+                return { ...t, content, originalContent: content, isDirty: false };
+              })
+            );
+          });
+        }
 
-    // Check immediately on tab switch
-    const current = activeTabRef.current;
-    if (current) checkFileUpdate(current);
-
-    return () => {
-      clearInterval(pollId);
+        return prevTabs;
+      });
     };
-  }, [activeFilePath, checkFileUpdate]);
+
+    emitter.on('workspace.file.modified' as any, handler);
+    return () => {
+      emitter.off('workspace.file.modified' as any, handler);
+    };
+  }, [setTabs]);
 
   // 监听 preview.open 事件（用于 agent 打开网页预览）/ Listen to preview.open event (for agent to open web preview)
   // 同时监听 IPC 和 renderer emitter 两种方式 / Listen to both IPC and renderer emitter

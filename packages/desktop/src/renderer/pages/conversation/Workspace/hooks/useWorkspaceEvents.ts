@@ -7,7 +7,7 @@
 import { ipcBridge } from '@/common';
 import type { IDirOrFile } from '@/common/adapter/ipcBridge';
 import { emitter, useAddEventListener } from '@/renderer/utils/emitter';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import type { ContextMenuState } from '../types';
 
 interface UseWorkspaceEventsOptions {
@@ -86,70 +86,6 @@ export function useWorkspaceEvents(options: UseWorkspaceEventsOptions) {
     closeRenameModal,
     closeDeleteModal,
   ]);
-
-  /**
-   * 节流的刷新函数 - 避免 Agent 连续 tool_call 导致工作空间反复刷新
-   * Throttled refresh - prevent rapid workspace refreshes during agent tool calls
-   */
-  const throttleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingRef = useRef(false);
-  const throttledRefresh = useCallback(() => {
-    if (throttleTimerRef.current) {
-      pendingRef.current = true; // Mark pending so trailing refresh fires after window
-      return;
-    }
-    refreshWorkspace();
-    throttleTimerRef.current = setTimeout(() => {
-      throttleTimerRef.current = null;
-      if (pendingRef.current) {
-        pendingRef.current = false;
-        refreshWorkspace(); // Fire trailing refresh for any calls missed during throttle window
-      }
-    }, 2000);
-  }, [refreshWorkspace]);
-
-  // Cleanup throttle timer on unmount
-  useEffect(() => {
-    return () => {
-      if (throttleTimerRef.current) clearTimeout(throttleTimerRef.current);
-    };
-  }, []);
-
-  /**
-   * 监听 Agent 响应流 - 自动刷新工作空间（节流）
-   * Listen to agent response stream - auto refresh workspace (throttled)
-   */
-  useEffect(() => {
-    const isNonFileSystemTool = (name: string) => /^mcp__aionui-team-|^team_/.test(name);
-
-    const handleResponse = (data: { type: string; data?: unknown; conversation_id?: string }) => {
-      if (data.conversation_id && data.conversation_id !== conversation_id) return;
-
-      if (data.type === 'acp_tool_call') {
-        const acpData = data.data as { update?: { kind?: string; status?: string; title?: string } } | undefined;
-        const kind = acpData?.update?.kind;
-        const status = acpData?.update?.status;
-        const title = acpData?.update?.title;
-        const shouldRefresh = kind === 'edit' || kind === 'execute' || (status === 'completed' && kind !== 'read');
-        if (shouldRefresh) {
-          if (title && isNonFileSystemTool(title)) return;
-          throttledRefresh();
-        }
-      }
-      if (data.type === 'tool_call') {
-        const toolData = data.data as { status?: string; name?: string } | undefined;
-        if (toolData?.status === 'completed') {
-          if (toolData.name && isNonFileSystemTool(toolData.name)) return;
-          throttledRefresh();
-        }
-      }
-    };
-    const unsubscribe = ipcBridge.acpConversation.responseStream.on(handleResponse);
-
-    return () => {
-      unsubscribe();
-    };
-  }, [conversation_id, eventPrefix, throttledRefresh]);
 
   /**
    * 监听手动刷新工作空间事件
