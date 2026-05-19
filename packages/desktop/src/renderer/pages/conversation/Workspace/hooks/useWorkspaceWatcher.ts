@@ -45,44 +45,40 @@ function replaceChildren(tree: IDirOrFile[], parentRelPath: string, newChildren:
 
 export function useWorkspaceWatcher(options: UseWorkspaceWatcherOptions) {
   const { workspace, conversation_id, expandedKeys, collapsed, setFiles, refreshWorkspace } = options;
-  const subscribedDirsRef = useRef<Set<string>>(new Set());
+  const treeSubscribedDirs = useRef<Set<string>>(new Set());
+  const previewSubscribedDirs = useRef<Set<string>>(new Set());
   const isReadyRef = useRef(false);
   const expandedKeysRef = useRef(expandedKeys);
   expandedKeysRef.current = expandedKeys;
+  const workspaceRef = useRef(workspace);
+  workspaceRef.current = workspace;
 
-  const subscribe = useCallback(
+  const actualSubscribe = useCallback(
     (dirs: string[]) => {
       if (!workspace || dirs.length === 0) return;
-      const newDirs = dirs.filter((d) => !subscribedDirsRef.current.has(d));
-      if (newDirs.length === 0) return;
-      wsSend('workspace.subscribe', { workspace, dirs: newDirs });
-      for (const d of newDirs) subscribedDirsRef.current.add(d);
+      const newDirs = dirs.filter((d) => !treeSubscribedDirs.current.has(d) && !previewSubscribedDirs.current.has(d));
+      if (newDirs.length > 0) {
+        wsSend('workspace.subscribe', { workspace, dirs: newDirs });
+      }
     },
     [workspace]
   );
 
-  const unsubscribe = useCallback(
+  const actualUnsubscribe = useCallback(
     (dirs: string[]) => {
       if (!workspace || dirs.length === 0) return;
-      const existing = dirs.filter((d) => subscribedDirsRef.current.has(d));
-      if (existing.length === 0) return;
-      wsSend('workspace.unsubscribe', { workspace, dirs: existing });
-      for (const d of existing) {
-        subscribedDirsRef.current.delete(d);
-        for (const sub of subscribedDirsRef.current) {
-          if (sub.startsWith(d + '/')) {
-            subscribedDirsRef.current.delete(sub);
-          }
-        }
+      const toUnsub = dirs.filter((d) => !treeSubscribedDirs.current.has(d) && !previewSubscribedDirs.current.has(d));
+      if (toUnsub.length > 0) {
+        wsSend('workspace.unsubscribe', { workspace, dirs: toUnsub });
       }
     },
     [workspace]
   );
 
   const resubscribeAll = useCallback(() => {
-    const dirs = [...subscribedDirsRef.current];
-    if (dirs.length > 0 && workspace) {
-      wsSend('workspace.subscribe', { workspace, dirs });
+    const allDirs = new Set([...treeSubscribedDirs.current, ...previewSubscribedDirs.current]);
+    if (allDirs.size > 0 && workspace) {
+      wsSend('workspace.subscribe', { workspace, dirs: [...allDirs] });
     }
   }, [workspace]);
 
@@ -112,10 +108,13 @@ export function useWorkspaceWatcher(options: UseWorkspaceWatcherOptions) {
 
       if (pathsToDelete.size > 0) {
         setFiles((prev) => removeNodes(prev, pathsToDelete));
+        for (const path of pathsToDelete) {
+          emitter.emit('workspace.file.deleted', { workspace, relativePath: path });
+        }
       }
 
       for (const path of pathsModified) {
-        emitter.emit('workspace.file.modified' as any, { workspace, relativePath: path });
+        emitter.emit('workspace.file.modified', { workspace, relativePath: path });
       }
 
       for (const dir of dirsToRefetch) {
@@ -156,41 +155,70 @@ export function useWorkspaceWatcher(options: UseWorkspaceWatcherOptions) {
       unsubChanged();
       unsubOverflow();
       removeReconnect();
-      if (subscribedDirsRef.current.size > 0) {
-        wsSend('workspace.unsubscribe', { workspace, dirs: [...subscribedDirsRef.current] });
-        subscribedDirsRef.current.clear();
+      const allDirs = new Set([...treeSubscribedDirs.current, ...previewSubscribedDirs.current]);
+      if (allDirs.size > 0) {
+        wsSend('workspace.unsubscribe', { workspace, dirs: [...allDirs] });
       }
+      treeSubscribedDirs.current.clear();
+      previewSubscribedDirs.current.clear();
     };
   }, [workspace, applyChanges, refreshWorkspace, resubscribeAll]);
 
   useEffect(() => {
     if (!workspace) return;
     if (collapsed) {
-      if (subscribedDirsRef.current.size > 0) {
-        wsSend('workspace.unsubscribe', { workspace, dirs: [...subscribedDirsRef.current] });
-        subscribedDirsRef.current.clear();
-      }
       isReadyRef.current = false;
       return;
     }
     if (!isReadyRef.current) {
       isReadyRef.current = true;
-      subscribe(['', ...expandedKeysRef.current.filter((k) => k !== '')]);
+      const dirs = ['', ...expandedKeysRef.current.filter((k) => k !== '')];
+      for (const d of dirs) treeSubscribedDirs.current.add(d);
+      actualSubscribe(dirs);
+      emitter.emit('workspace.preview.refetch', { workspace });
     }
-  }, [workspace, collapsed, subscribe]);
+  }, [workspace, collapsed, actualSubscribe]);
+
+  useEffect(() => {
+    const handleSub = ({ workspace: ws, dir }: { workspace: string; dir: string }) => {
+      if (ws !== workspaceRef.current) return;
+      previewSubscribedDirs.current.add(dir);
+      actualSubscribe([dir]);
+    };
+    const handleUnsub = ({ workspace: ws, dir }: { workspace: string; dir: string }) => {
+      if (ws !== workspaceRef.current) return;
+      previewSubscribedDirs.current.delete(dir);
+      actualUnsubscribe([dir]);
+    };
+    emitter.on('workspace.preview.subscribe', handleSub);
+    emitter.on('workspace.preview.unsubscribe', handleUnsub);
+    return () => {
+      emitter.off('workspace.preview.subscribe', handleSub);
+      emitter.off('workspace.preview.unsubscribe', handleUnsub);
+    };
+  }, [actualSubscribe, actualUnsubscribe]);
 
   const onDirsExpand = useCallback(
     (dirs: string[]) => {
-      subscribe(dirs);
+      for (const d of dirs) treeSubscribedDirs.current.add(d);
+      actualSubscribe(dirs);
     },
-    [subscribe]
+    [actualSubscribe]
   );
 
   const onDirsCollapse = useCallback(
     (dirs: string[]) => {
-      unsubscribe(dirs);
+      for (const d of dirs) {
+        treeSubscribedDirs.current.delete(d);
+        for (const sub of treeSubscribedDirs.current) {
+          if (sub.startsWith(d + '/')) {
+            treeSubscribedDirs.current.delete(sub);
+          }
+        }
+      }
+      actualUnsubscribe(dirs);
     },
-    [unsubscribe]
+    [actualUnsubscribe]
   );
 
   return { onDirsExpand, onDirsCollapse };
