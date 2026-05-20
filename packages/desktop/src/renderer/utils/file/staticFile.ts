@@ -32,7 +32,7 @@ export async function fetchFileAsBlob(
   }
 
   const url = buildFileUrl(conversationId, relativePath);
-  const response = await fetch(url, { signal });
+  const response = await fetch(url, { signal, cache: 'no-cache' });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
@@ -70,7 +70,7 @@ export async function fetchFileAsText(
   signal?: AbortSignal
 ): Promise<string> {
   const url = buildFileUrl(conversationId, relativePath);
-  const response = await fetch(url, { signal });
+  const response = await fetch(url, { signal, cache: 'no-cache' });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);

@@ -173,8 +173,8 @@ export function useWorkspaceWatcher(options: UseWorkspaceWatcherOptions) {
     if (!isReadyRef.current) {
       isReadyRef.current = true;
       const dirs = ['', ...expandedKeysRef.current.filter((k) => k !== '')];
-      for (const d of dirs) treeSubscribedDirs.current.add(d);
       actualSubscribe(dirs);
+      for (const d of dirs) treeSubscribedDirs.current.add(d);
       emitter.emit('workspace.preview.refetch', { workspace });
     }
   }, [workspace, collapsed, actualSubscribe]);
@@ -182,8 +182,8 @@ export function useWorkspaceWatcher(options: UseWorkspaceWatcherOptions) {
   useEffect(() => {
     const handleSub = ({ workspace: ws, dir }: { workspace: string; dir: string }) => {
       if (ws !== workspaceRef.current) return;
-      previewSubscribedDirs.current.add(dir);
       actualSubscribe([dir]);
+      previewSubscribedDirs.current.add(dir);
     };
     const handleUnsub = ({ workspace: ws, dir }: { workspace: string; dir: string }) => {
       if (ws !== workspaceRef.current) return;
@@ -200,8 +200,8 @@ export function useWorkspaceWatcher(options: UseWorkspaceWatcherOptions) {
 
   const onDirsExpand = useCallback(
     (dirs: string[]) => {
-      for (const d of dirs) treeSubscribedDirs.current.add(d);
       actualSubscribe(dirs);
+      for (const d of dirs) treeSubscribedDirs.current.add(d);
     },
     [actualSubscribe]
   );

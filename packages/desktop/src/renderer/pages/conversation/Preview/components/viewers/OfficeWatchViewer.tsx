@@ -7,10 +7,11 @@
 import { ipcBridge } from '@/common';
 import { getBaseUrl, isBackendHttpError } from '@/common/adapter/httpBridge';
 import WebviewHost from '@/renderer/components/media/WebviewHost';
+import { emitter } from '@/renderer/utils/emitter';
 import { openExternalUrl } from '@/renderer/utils/platform';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Button, Spin } from '@arco-design/web-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type DocType = 'ppt' | 'word' | 'excel';
@@ -143,19 +144,24 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
   const [retryKey, setRetryKey] = useState(0);
   const file_pathRef = useRef(file_path);
 
+  console.log('[OfficeWatchViewer] render', { docType, file_path, workspace, watchUrl, loading });
+
   useEffect(() => {
     file_pathRef.current = file_path;
     const bridge = BRIDGE[docType];
 
     if (!file_path) {
+      console.warn('[OfficeWatchViewer] no file_path, skipping start');
       setLoading(false);
       setError({ message: t('preview.errors.missingFilePath') });
       return;
     }
 
     let cancelled = false;
+    console.log('[OfficeWatchViewer] useEffect start', { docType, file_path, workspace });
 
     const unsubStatus = bridge.status.on((evt) => {
+      console.log('[OfficeWatchViewer] status event', evt);
       if (cancelled) return;
       if (evt.state === 'installing') setStatus('installing');
       else if (evt.state === 'starting') setStatus('starting');
@@ -166,7 +172,9 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
       setStatus('starting');
       setError(null);
       try {
+        console.log('[OfficeWatchViewer] calling bridge.start.invoke', { file_path, workspace });
         const result = await bridge.start.invoke({ file_path, workspace });
+        console.log('[OfficeWatchViewer] bridge.start result', result);
         const errorCode = normalizeOfficeWatchErrorCode(result.error);
         if (errorCode) {
           setError({
@@ -185,11 +193,13 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
         await new Promise((r) => setTimeout(r, 300));
         if (!cancelled) {
           const resolvedUrl = resolveOfficeWatchUrl(url, docType);
+          console.log('[OfficeWatchViewer] resolved watchUrl', resolvedUrl);
           setWatchUrl(resolvedUrl);
           setLoading(false);
         }
       } catch (err) {
         if (!cancelled) {
+          console.error('[OfficeWatchViewer] start failed', err);
           const backendCode = isBackendHttpError(err) ? normalizeOfficeWatchErrorCode(err.code) : undefined;
           if (backendCode) {
             setError({
@@ -209,6 +219,7 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
     void start();
 
     return () => {
+      console.log('[OfficeWatchViewer] cleanup, stopping watch for', file_pathRef.current);
       cancelled = true;
       unsubStatus();
       if (file_pathRef.current) {
@@ -216,6 +227,39 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
       }
     };
   }, [docType, file_path, retryKey, t, workspace]);
+
+  const hasReloadedRef = useRef(false);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    hasReloadedRef.current = false;
+  }, [file_path]);
+
+  const handleModify = useCallback(
+    ({ workspace: ws, relativePath }: { workspace: string; relativePath: string }) => {
+      if (!file_path || !workspace) return;
+      if (hasReloadedRef.current) return;
+      const modifiedPath = `${ws}/${relativePath}`;
+      if (modifiedPath !== file_path) return;
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        debounceTimerRef.current = null;
+        if (hasReloadedRef.current) return;
+        hasReloadedRef.current = true;
+        console.log('[OfficeWatchViewer] file modified (first time), restarting officecli watch');
+        setRetryKey((k) => k + 1);
+      }, 1500);
+    },
+    [file_path, workspace]
+  );
+
+  useEffect(() => {
+    emitter.on('workspace.file.modified', handleModify);
+    return () => {
+      emitter.off('workspace.file.modified', handleModify);
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, [handleModify]);
 
   if (loading) {
     return (
@@ -260,10 +304,18 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
 
   if (!watchUrl) return null;
 
+  console.log('[OfficeWatchViewer] rendering webview/iframe with url:', watchUrl);
+
   // Electron: use <webview> via WebviewHost for full Electron integration.
   // Web server mode: use <iframe> since <webview> is Electron-only.
   if (isElectronDesktop()) {
-    return <WebviewHost url={watchUrl} className='bg-bg-1' />;
+    return (
+      <WebviewHost
+        url={watchUrl}
+        className='bg-bg-1'
+        onDidFinishLoad={() => console.log('[OfficeWatchViewer] webview did-finish-load', watchUrl)}
+      />
+    );
   }
   return <iframe src={watchUrl} className='w-full h-full border-0 bg-bg-1' title={IFRAME_TITLE[docType]} />;
 };
