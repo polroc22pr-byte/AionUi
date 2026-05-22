@@ -228,29 +228,27 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
     };
   }, [docType, file_path, retryKey, t, workspace]);
 
-  const hasReloadedRef = useRef(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    hasReloadedRef.current = false;
-  }, [file_path]);
 
   const handleModify = useCallback(
     ({ workspace: ws, relativePath }: { workspace: string; relativePath: string }) => {
-      if (!file_path || !workspace) return;
-      if (hasReloadedRef.current) return;
+      if (!file_path || !workspace || !watchUrl) return;
       const modifiedPath = `${ws}/${relativePath}`;
       if (modifiedPath !== file_path) return;
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = setTimeout(() => {
         debounceTimerRef.current = null;
-        if (hasReloadedRef.current) return;
-        hasReloadedRef.current = true;
-        console.log('[OfficeWatchViewer] file modified (first time), restarting officecli watch');
-        setRetryKey((k) => k + 1);
+        console.log('[OfficeWatchViewer] file modified, reloading webview');
+        if (isElectronDesktop()) {
+          setReloadKey((k) => k + 1);
+        } else if (iframeRef.current) {
+          iframeRef.current.src = iframeRef.current.src;
+        }
       }, 1500);
     },
-    [file_path, workspace]
+    [file_path, workspace, watchUrl]
   );
 
   useEffect(() => {
@@ -306,18 +304,24 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
 
   console.log('[OfficeWatchViewer] rendering webview/iframe with url:', watchUrl);
 
-  // Electron: use <webview> via WebviewHost for full Electron integration.
-  // Web server mode: use <iframe> since <webview> is Electron-only.
   if (isElectronDesktop()) {
     return (
       <WebviewHost
+        key={reloadKey}
         url={watchUrl}
         className='bg-bg-1'
         onDidFinishLoad={() => console.log('[OfficeWatchViewer] webview did-finish-load', watchUrl)}
       />
     );
   }
-  return <iframe src={watchUrl} className='w-full h-full border-0 bg-bg-1' title={IFRAME_TITLE[docType]} />;
+  return (
+    <iframe
+      ref={iframeRef}
+      src={watchUrl}
+      className='w-full h-full border-0 bg-bg-1'
+      title={IFRAME_TITLE[docType]}
+    />
+  );
 };
 
 export default OfficeWatchViewer;
