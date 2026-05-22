@@ -560,7 +560,7 @@ export function useWorkspace(options: UseWorkspaceOptions) {
     }
   }, [closeDeleteModal, deleteModal.target, eventPrefix, messageApi, setDeleteModal, store, t]);
 
-  const waitWithTimeout = useCallback(<T,>(promise: Promise<T>, timeoutMs = 8000): Promise<T> => {
+  const waitWithTimeout = useCallback(<T>(promise: Promise<T>, timeoutMs = 8000): Promise<T> => {
     return new Promise<T>((resolve, reject) => {
       const timer = window.setTimeout(() => reject(new Error('timeout')), timeoutMs);
       promise
@@ -1001,4 +1001,3 @@ export function useWorkspace(options: UseWorkspaceOptions) {
     store,
   };
 }
-

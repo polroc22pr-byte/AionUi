@@ -318,12 +318,7 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, file_pat
     );
   }
   return (
-    <iframe
-      ref={iframeRef}
-      src={watchUrl}
-      className='w-full h-full border-0 bg-bg-1'
-      title={IFRAME_TITLE[docType]}
-    />
+    <iframe ref={iframeRef} src={watchUrl} className='w-full h-full border-0 bg-bg-1' title={IFRAME_TITLE[docType]} />
   );
 };
 

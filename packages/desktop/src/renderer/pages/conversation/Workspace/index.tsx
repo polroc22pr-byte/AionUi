@@ -141,12 +141,7 @@ const ChatWorkspaceInner: React.FC<WorkspaceProps> = ({
     };
   }, [modals.closeContextMenu]);
 
-  const targetFolderPathForModal = getTargetFolderPath(
-    ws.selectedNodeRef.current,
-    ws.selected,
-    ws.files,
-    workspace
-  );
+  const targetFolderPathForModal = getTargetFolderPath(ws.selectedNodeRef.current, ws.selected, ws.files, workspace);
 
   return (
     <>
