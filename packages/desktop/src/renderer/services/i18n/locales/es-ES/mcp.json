@@ -3,6 +3,7 @@
     "title": "Integración MCP",
     "description": "Gestionar servidores y herramientas del Protocolo de Contexto de Modelo"
   },
+  "label": "MCP",
   "servers": "Servidores",
   "tools": "Herramientas",
   "executionHistory": "Historial de Ejecución",
