@@ -7,12 +7,14 @@
   "file": "Archivo",
   "folder": "Carpeta",
   "upload": "Subir",
-  "attach": "Adjuntar",
+  "model": "Modelo",
+  "skills": "Habilidades",
   "workspace": "Espacio de trabajo",
   "settings": "Configuración",
   "system": "Sistema",
   "about": "Acerca de",
   "back": "Volver al Chat",
+  "goBack": "Back",
   "add": "Añadir",
   "edit": "Editar",
   "website": "Sitio web",
@@ -58,6 +60,7 @@
   "historyBack": "Atrás",
   "more": "Más",
   "refresh": "Actualizar",
+  "readOnly": "Read only",
   "tray.showWindow": "Mostrar AionUi",
   "tray.newChat": "Nuevo Chat",
   "tray.closeToTray": "Ocultar en Bandeja",
@@ -69,7 +72,35 @@
   "tray.checkUpdate": "Buscar Actualización",
   "tray.recentChats": "Chats Recientes",
   "tray.untitled": "Sin Título",
-  "fileAttach.hostFiles": "Archivos de la Máquina Host",
+  "backendStartup": {
+    "incompatibleRuntime": {
+      "title": "Este sistema no es compatible con el backend incluido",
+      "description": "AionUi se abrió, pero el backend local de AionCore no puede ejecutarse en esta versión de Linux. Actualiza a una distribución de Linux compatible y reinicia AionUi.",
+      "requiredVersions": "Símbolos de ejecución requeridos: {{versions}}"
+    },
+    "incompleteInstallation": {
+      "title": "La instalación de AionUi está incompleta",
+      "description": "Esta instalación carece de recursos locales requeridos, por lo que AionCore no puede iniciarse. Por favor, descarga y reinstala la última versión de AionUi.",
+      "downloadLatest": "Descargar última versión",
+      "sendDiagnostics": "Enviar diagnósticos",
+      "diagnosticsSent": "Diagnostics sent",
+      "diagnosticsReportSuccess": "Diagnostics report sent",
+      "diagnosticsReportFailed": "Failed to send diagnostics report",
+      "runtimeComponentDescription": "This installation is missing required bundled runtime components, so {{resource}} cannot start. Reinstall the latest AionUi package. If it still happens after reinstalling, check whether security or antivirus software quarantined AionUi components."
+    },
+    "packageArchitectureMismatch": {
+      "title": "AionUi package architecture mismatch",
+      "description": "This AionUi package is for {{packageArch}}, but this Mac is {{deviceArch}}. You may have downloaded the wrong package. Please download and install the {{expectedArch}} package."
+    },
+    "dataMigration": {
+      "title": "Local data migration failed",
+      "description": "AionUi opened, but AionCore stopped while initializing local data. Reinstalling AionUi may not fix this. Send a diagnostics report or contact support so the local database migration can be inspected.",
+      "sendDiagnostics": "Send diagnostics",
+      "diagnosticsSent": "Diagnostics sent",
+      "diagnosticsReportSuccess": "Diagnostics report sent",
+      "diagnosticsReportFailed": "Failed to send diagnostics report"
+    }
+  },
   "fileAttach.addFiles": "Agregar archivos",
   "fileAttach.myDevice": "Mi Dispositivo",
   "fileAttach.failed": "Falló la Carga",
@@ -86,20 +117,8 @@
   "processing": "Procesando...",
   "optional": "(opcional)",
   "clear": "Limpiar",
-  "unit": { "minute_short": "min", "second_short": "seg" },
-  "model": "Modelo",
-  "skills": "Habilidades",
-  "backendStartup": {
-    "incompatibleRuntime": {
-      "title": "Este sistema no es compatible con el backend incluido",
-      "description": "AionUi se abrió, pero el backend local de AionCore no puede ejecutarse en esta versión de Linux. Actualiza a una distribución de Linux compatible y reinicia AionUi.",
-      "requiredVersions": "Símbolos de ejecución requeridos: {{versions}}"
-    },
-    "incompleteInstallation": {
-      "title": "La instalación de AionUi está incompleta",
-      "description": "Esta instalación carece de recursos locales requeridos, por lo que AionCore no puede iniciarse. Por favor, descarga y reinstala la última versión de AionUi.",
-      "downloadLatest": "Descargar última versión",
-      "sendDiagnostics": "Enviar diagnósticos"
-    }
+  "unit": {
+    "minute_short": "min",
+    "second_short": "seg"
   }
 }
