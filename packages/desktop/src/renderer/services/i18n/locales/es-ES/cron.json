@@ -17,7 +17,12 @@
     "createNow": "Crear Ahora",
     "defaultPrompt": "Todos los días a las 10am, busca las últimas noticias de IA, resume y genera un informe de perspectivas."
   },
-  "actions": { "goTo": "Ver Chat", "pause": "Pausar", "resume": "Reanudar", "delete": "Eliminar" },
+  "actions": {
+    "goTo": "Ver Chat",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "delete": "Eliminar"
+  },
   "confirmDeleteWithConversations": "¿Estás seguro de que quieres eliminar esta tarea programada? Todas las conversaciones de esta tarea también se eliminarán.",
   "deleteSuccess": "Tarea eliminada",
   "pauseSuccess": "Tarea pausada",
@@ -37,7 +42,8 @@
     "noHistory": "Aún no hay ejecuciones",
     "notFound": "Tarea no encontrada",
     "executionModeDescriptionNew": "Cada ejecución inicia una conversación nueva, por lo que el contexto anterior no se transfiere. Ideal para informes o verificaciones recurrentes que deben mantenerse independientes.",
-    "executionModeDescriptionExisting": "Cada ejecución continúa en la misma conversación, por lo que el contexto y los resultados anteriores permanecen disponibles. Ideal para tareas de seguimiento que se basan en ejecuciones anteriores."
+    "executionModeDescriptionExisting": "Cada ejecución continúa en la misma conversación, por lo que el contexto y los resultados anteriores permanecen disponibles. Ideal para tareas de seguimiento que se basan en ejecuciones anteriores.",
+    "assistant": "Assistant"
   },
   "notification": {
     "taskComplete": "Tarea Completada",
@@ -95,13 +101,18 @@
       "executionModeEditHint": "El modo de ejecución no se puede cambiar después de la creación. Elimina y recrea la tarea para cambiar modos.",
       "advancedSettings": "Configuración Avanzada",
       "workspace": "Espacio de Trabajo",
-      "workspacePlaceholder": "Seleccionar una carpeta",
       "workspaceHint": "Opcional: establece una carpeta de espacio de trabajo para operaciones de archivos",
       "selectFolder": "Seleccionar Carpeta",
       "clearFolder": "Limpiar",
       "model": "Modelo",
       "aionrsModelRequired": "Por favor, selecciona un modelo para Aion CLI",
-      "aionrsNoProvider": "No hay modelos disponibles"
+      "aionrsNoProvider": "No hay modelos disponibles",
+      "assistant": "Assistant",
+      "assistantRequired": "Please select an assistant",
+      "assistantPlaceholder": "Select the assistant to execute this task",
+      "assistantLockedExistingConversation": "Ongoing conversation tasks must keep their original assistant. Create a new task to use another assistant.",
+      "teamTaskExecutionModeLockedReason": "Team scheduled tasks must keep running in the owning team conversation, so the execution mode cannot be changed.",
+      "workspacePlaceholder": "Seleccionar una carpeta"
     },
     "freq": {
       "manual": "Manual",
@@ -117,9 +128,13 @@
       "dailyAt": "Todos los días a las {{time}}",
       "weekdaysAt": "Días laborables a las {{time}}",
       "weeklyAt": "Cada {{day}} a las {{time}}"
-    }
+    },
+    "createViaChat": "Create via chat",
+    "createManually": "Create manually"
   },
-  "trigger": { "runScheduledTask": "Ejecutar tarea programada: {{name}}" },
+  "trigger": {
+    "runScheduledTask": "Ejecutar tarea programada: {{name}}"
+  },
   "skill": {
     "turnIntoSkill": "Convertir esta tarea en una habilidad",
     "save": "Guardar como Habilidad",

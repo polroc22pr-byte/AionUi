@@ -4,7 +4,19 @@
     "console_error": "Detalles del error de autenticación ACP:",
     "failed_confirm": "Autenticación ACP de {{backend}} fallida:\n\n{{error}}\n\n¿Te gustaría ir a la página de configuración para configurarlo ahora?"
   },
-  "sendbox": { "placeholder": "Enviar mensaje a {{backend}}..." },
+  "send": {
+    "failed": "Error al enviar mensaje: {{error}}"
+  },
+  "sendbox": {
+    "placeholder": "Enviar mensaje a {{backend}}..."
+  },
+  "image": {
+    "download": "Descargar",
+    "download_aria": "Descargar imagen",
+    "download_success": "Descarga exitosa",
+    "download_error": "Error al descargar",
+    "generated_alt": "Imagen generada"
+  },
   "status": {
     "connecting": "Conectando a {{agent}}...",
     "connected": "Conectado a {{agent}}",
@@ -13,6 +25,8 @@
     "error": "Error de conexión",
     "unknown": "Estado desconocido"
   },
-  "config": { "reasoning_effort": "Esfuerzo de Razonamiento", "default": "Predeterminado" },
-  "send": { "failed": "Error al enviar mensaje: {{error}}" }
+  "config": {
+    "reasoning_effort": "Esfuerzo de Razonamiento",
+    "default": "Predeterminado"
+  }
 }

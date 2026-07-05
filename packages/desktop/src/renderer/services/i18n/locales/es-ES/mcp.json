@@ -66,5 +66,10 @@
   "error": "Error MCP",
   "advancedOptions": "Opciones Avanzadas",
   "timeout": "Tiempo Límite",
-  "priority": { "low": "Baja", "normal": "Normal", "high": "Alta", "urgent": "Urgente" }
+  "priority": {
+    "low": "Baja",
+    "normal": "Normal",
+    "high": "Alta",
+    "urgent": "Urgente"
+  }
 }

@@ -20,24 +20,33 @@
   "newAgent": "Nuevo Agente",
   "noMessages": "Aún no hay mensajes.",
   "agentNotConfigured": "Agente no configurado aún.",
-  "sendBox": { "placeholder": "Agente de despacho de mensajes..." },
+  "stopAgentFailed": "Error al detener este agente. Por favor intenta de nuevo.",
+  "sendBox": {
+    "placeholder": "Agente de despacho de mensajes..."
+  },
   "create": {
     "title": "Crear Equipo",
     "namePlaceholder": "Nombre del equipo",
     "dispatchAgentPlaceholder": "Seleccionar líder del equipo",
     "subAgentsPlaceholder": "Seleccionar sub-agentes",
-    "workspacePlaceholder": "Ruta del espacio de trabajo (opcional)",
     "confirm": "Crear Equipo",
     "noSupportedAgents": "No hay agentes compatibles instalados",
     "supportedAgentsHint": "Actualmente soporta Claude y Codex. Más agentes próximamente.",
     "leaderDesc": "Entiende tus objetivos y coordina agentes para completar tareas",
-    "step": { "dispatch": "Líder del Equipo", "subAgents": "Sub-Agentes", "workspace": "Espacio de Trabajo" },
+    "step": {
+      "dispatch": "Líder del Equipo",
+      "subAgents": "Sub-Agentes",
+      "workspace": "Espacio de Trabajo"
+    },
     "nameRequired": "Por favor, ingresa un nombre de equipo",
     "leaderRequired": "Por favor, selecciona un líder de equipo",
     "selectFolder": "Seleccionar carpeta",
     "recentLabel": "Reciente",
     "chooseDifferentFolder": "Elegir una carpeta diferente",
-    "error": "Error al crear equipo"
+    "error": "Error al crear equipo",
+    "searchPlaceholder": "Search assistants...",
+    "noSearchResults": "No results found",
+    "workspacePlaceholder": "Ruta del espacio de trabajo (opcional)"
   },
   "removeAgent": {
     "confirmTitle": "Eliminar Miembro del Equipo",

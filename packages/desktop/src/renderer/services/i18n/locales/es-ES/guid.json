@@ -6,9 +6,9 @@
   "autoSwitchToAgent": "Gemini no está configurado, cambiando automáticamente a {{agent}}",
   "autoSwitchedAgent": "{{from}} no está disponible, cambiado a {{to}}",
   "promptExamplesHint": "Prueba con prompts de ejemplo:",
+  "selectAssistantHint": "Selecciona un asistente para iniciar una tarea",
   "agentSwitcherLabel": "Agente",
   "switchedToAgent": "Cambiado a {{agent}}",
-  "selectAssistantHint": "Selecciona un asistente para iniciar una tarea",
   "workspace": {
     "workInProject": "Trabajar en un proyecto",
     "optional": "Opcional",
@@ -26,5 +26,10 @@
     "statusTesting": "Probando latencia...",
     "statusUnreachable": "Inalcanzable",
     "statusAvailable": "Disponible"
+  },
+  "defaultPrompts": {
+    "capabilities": "What can you do for me?",
+    "skills": "What skills do you have?",
+    "tools": "What tools do you have?"
   }
 }

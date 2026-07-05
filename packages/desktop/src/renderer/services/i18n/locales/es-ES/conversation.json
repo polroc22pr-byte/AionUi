@@ -71,7 +71,8 @@
     "removeProjectTitle": "Eliminar proyecto",
     "removeProject": "Eliminar proyecto",
     "removeProjectConfirm": "¿Eliminar el proyecto \"{{name}}\"? Sus {{count}} conversaciones también se eliminarán.",
-    "newConversationInProject": "Nuevo chat en este proyecto"
+    "newConversationInProject": "Nuevo chat en este proyecto",
+    "deleting": "Eliminando..."
   },
   "historySearch": {
     "tooltip": "Buscar mensajes",
@@ -194,22 +195,6 @@
         "title": "La inicialización del protocolo del agente falló",
         "body": "La aplicación no pudo inicializar la sesión del Agent Client Protocol con este agente. Verifica la versión del agente y reconéctalo."
       },
-      "USER_AGENT_PROTOCOL_PARSE_ERROR": {
-        "title": "Agent reported a protocol parse error",
-        "body": "The selected agent reported that an ACP/JSON-RPC message could not be parsed."
-      },
-      "USER_AGENT_INVALID_REQUEST": {
-        "title": "Agent reported an invalid protocol request",
-        "body": "The selected agent reported that the ACP/JSON-RPC request object was invalid."
-      },
-      "USER_AGENT_RESOURCE_NOT_FOUND": {
-        "title": "Agent could not find a required resource",
-        "body": "The selected agent reported that a required resource, such as a file, was not found."
-      },
-      "USER_AGENT_PROTOCOL_ERROR": {
-        "title": "Agent returned a protocol error",
-        "body": "The selected agent returned a non-standard ACP error code."
-      },
       "USER_AGENT_PROTOCOL_MISMATCH": {
         "title": "Las versiones del protocolo del agente son incompatibles",
         "body": "El agente seleccionado usa una versión de protocolo incompatibe. Actualiza el agente o cambia a uno compatible."
@@ -229,10 +214,6 @@
       "USER_LLM_PROVIDER_AUTH_FAILED": {
         "title": "La autenticación del proveedor de modelos falló",
         "body": "El proveedor seleccionado rechazó la clave API o las credenciales de la cuenta. Verifica la configuración del proveedor e intenta de nuevo."
-      },
-      "USER_LLM_PROVIDER_AWS_SSO_EXPIRED": {
-        "title": "AWS SSO session expired",
-        "body": "Your AWS SSO session has expired. Run 'aws sso login' for the matching profile, then send the message again."
       },
       "USER_LLM_PROVIDER_CONFIG_ERROR": {
         "title": "La configuración del proveedor de modelos es inválida",
@@ -298,6 +279,26 @@
       "UNKNOWN_UPSTREAM_ERROR": {
         "title": "El agente upstream o proveedor falló",
         "body": "La aplicación recibió un error upstream pero no pudo clasificarlo con confianza. Revisa los detalles a continuación o envía comentarios."
+      },
+      "USER_AGENT_PROTOCOL_PARSE_ERROR": {
+        "title": "Agent reported a protocol parse error",
+        "body": "The selected agent reported that an ACP/JSON-RPC message could not be parsed."
+      },
+      "USER_AGENT_INVALID_REQUEST": {
+        "title": "Agent reported an invalid protocol request",
+        "body": "The selected agent reported that the ACP/JSON-RPC request object was invalid."
+      },
+      "USER_AGENT_RESOURCE_NOT_FOUND": {
+        "title": "Agent could not find a required resource",
+        "body": "The selected agent reported that a required resource, such as a file, was not found."
+      },
+      "USER_AGENT_PROTOCOL_ERROR": {
+        "title": "Agent returned a protocol error",
+        "body": "The selected agent returned a non-standard ACP error code."
+      },
+      "USER_LLM_PROVIDER_AWS_SSO_EXPIRED": {
+        "title": "AWS SSO session expired",
+        "body": "Your AWS SSO session has expired. Run 'aws sso login' for the matching profile, then send the message again."
       },
       "MCP_HTTP_RESPONSE_READ_FAILED": {
         "title": "Failed to read the team helper response",
@@ -436,6 +437,7 @@
     "apiErrorSwitched": "Error de API, cambiado automáticamente a CLI {{cli}}",
     "confirmationLoadError": "Error al cargar el diálogo de confirmación",
     "tryAnotherAgent": "Intentar con otro agente:",
+    "switchedToAgent": "Cambiado a {{agent}}",
     "switchAgentFailed": "Error al cambiar agente",
     "speech": {
       "recordTooltip": "Iniciar entrada de voz",
@@ -522,7 +524,8 @@
     "label": "Pensando..."
   },
   "skills": {
-    "loaded": "Habilidades Cargadas"
+    "loaded": "Habilidades Cargadas",
+    "slashHint": "Skill"
   },
   "mcp": {
     "loaded": "MCP cargado",

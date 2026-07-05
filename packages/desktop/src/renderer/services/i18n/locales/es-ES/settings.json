@@ -78,7 +78,8 @@
     "importHistoryFileLine": "File: {{path}}",
     "importHistorySizeLine": "Size: {{actual}}, limit: {{limit}}",
     "importHistoryLocationLine": "Location: line {{line}}, column {{column}}",
-    "importHistorySourceLine": "Source: {{source}}"
+    "importHistorySourceLine": "Source: {{source}}",
+    "addSkill": "Add Skill"
   },
   "authMethod": "Autenticación",
   "geminiApiKey": "Clave API de Gemini",
@@ -260,14 +261,6 @@
   "hardwareAccelerationAutoDisabled": "Desactivado automáticamente tras bloqueos repetidos de la GPU.",
   "hardwareAccelerationRestartConfirm": "¿Reiniciar AionUi para aplicar la nueva configuración de aceleración por hardware?",
   "hardwareAccelerationUpdateFailed": "Error al actualizar la configuración de aceleración por hardware",
-  "browserNotification": {
-    "enable": "Habilitar notificaciones del navegador",
-    "granted": "Notificaciones del navegador habilitadas",
-    "denied": "Notificaciones bloqueadas — actívalas en la configuración del sitio de tu navegador",
-    "insecureContext": "Las notificaciones del navegador requieren HTTPS o acceso localhost",
-    "bodyConfirmation": "Un agente está esperando tu confirmación",
-    "bodyTurnCompleted": "El agente ha terminado de responder"
-  },
   "notification": "Notificaciones",
   "cronNotificationEnabled": "Finalización de Tarea Programada",
   "promptTimeout": "Tiempo de Espera de Prompt de LLM (s)",
@@ -896,7 +889,8 @@
     "agentDescTelegram": "Usado para conversaciones de Telegram",
     "autoFollowCliModel": "Seguir automáticamente el modelo cuando el CLI está en ejecución",
     "agentSwitched": "Agente cambiado exitosamente",
-    "modelSwitched": "Modelo cambiado exitosamente"
+    "modelSwitched": "Modelo cambiado exitosamente",
+    "name": "Asistente"
   },
   "lark": {
     "appId": "ID de Aplicación",
@@ -1012,7 +1006,15 @@
     "step4": "Una vez aprobado, puedes chatear con el asistente de IA a través de WeCom.",
     "waitingConnection": "Asegúrate de que WebUI esté en ejecución para que WeCom pueda alcanzar la URL de callback.",
     "agent": "Agente",
-    "agentDesc": "Usado para conversaciones de WeCom"
+    "agentDesc": "Usado para conversaciones de WeCom",
+    "wsTitle": "Conexión WebSocket de WeCom",
+    "wsHint": "Usa el modo “Conexión larga (WebSocket)” del bot inteligente de WeCom. No se requiere URL de callback, dominio ni IP pública.",
+    "botId": "ID del bot",
+    "botIdDesc": "ID del bot inteligente de WeCom (modo Conexión larga)",
+    "secret": "Secreto",
+    "secretDesc": "Secreto del bot inteligente de WeCom (modo Conexión larga)",
+    "callbackPublic": "Público",
+    "callbackRecommendation": "Recomendación: usa un proxy inverso con certificado, o mapea este equipo con Cloudflare Tunnel / ngrok."
   },
   "agentManagement": {
     "localAgents": "Agentes Locales",
@@ -1036,6 +1038,12 @@
     "marketComingSoon": "El mercado AionHub llegará pronto.",
     "detectCustomAgent": "Detectar Agente Personalizado",
     "editCustomAgent": "Editar Agente Personalizado",
+    "localAgentsEmpty": "No se detectaron agentes locales",
+    "detected": "Detectado",
+    "customAgents": "Agentes Personalizados",
+    "custom": "Personalizado",
+    "addCustomAgent": "Añadir Agente Personalizado",
+    "customEmpty": "No hay agentes personalizados configurados. Haz clic en \"Añadir Agente Personalizado\" para crear uno.",
     "officialAgents": "Official Agents",
     "configureConnection": "Configure",
     "testConnection": "Test Connection",
@@ -1045,17 +1053,16 @@
     "testConnectionAuth": "{{name}} is reachable but needs sign-in.",
     "testConnectionError": "Failed to test agent connection.",
     "refreshingStatuses": "Refreshing detection status...",
+    "filterAll": "All ({{count}})",
+    "filterAvailable": "Available ({{count}})",
+    "filterUnavailable": "Unavailable ({{count}})",
     "statusOnline": "Available",
     "statusNeedsAuth": "Needs Sign-in",
     "statusOffline": "Unavailable",
     "statusMissing": "Not Installed",
+    "statusUnchecked": "Not Checked",
     "statusUnknown": "Unknown",
-    "localAgentsEmpty": "No se detectaron agentes locales",
-    "detected": "Detectado",
-    "customAgents": "Agentes Personalizados",
-    "custom": "Personalizado",
-    "addCustomAgent": "Añadir Agente Personalizado",
-    "customEmpty": "No hay agentes personalizados configurados. Haz clic en \"Añadir Agente Personalizado\" para crear uno.",
+    "customEmptyDescription": "Custom agents must support ACP.",
     "errorCodes": {
       "command_not_found": "Install {{command}} and retry the connection test.",
       "acp_init_failed": "The CLI started but failed during initialization. Complete sign-in or first-run setup, then retry the connection test.",
@@ -1074,27 +1081,6 @@
     "boundAssistantsCount": "{{count}} assistant(s)",
     "boundAssistantsEmpty": "No assistants are bound to this agent yet.",
     "viewAssistant": "View"
-  },
-  "repair": {
-    "pathLabel": "Launch Path",
-    "pathPlaceholder": "Currently using: {{command}}",
-    "pathHelp": "If the default path cannot be found, specify the full path here. Leave blank to use the default.",
-    "resetPath": "Reset to Default",
-    "envLabel": "Environment Variables",
-    "envHelp": "Some tools require API keys or access tokens to run, such as ANTHROPIC_API_KEY or FACTORY_API_KEY. Add one variable per row.",
-    "saveAndTest": "Save & Test",
-    "duplicateKeysError": "Duplicate environment variable names found. Please check and try again.",
-    "onlineTitle": "Connected",
-    "onlineHint": "A connection was established successfully. Note: \"online\" only means the agent is reachable — it does not mean it is logged in or authorized. If this tool needs an API key or access token, add it under Environment Variables below.",
-    "offlineTitle": "Connection failed",
-    "offlineHint": "The command was found but the connection failed. Check the error above, then adjust the launch path or environment variables below.",
-    "missingTitle": "Not detected",
-    "missingHint": "The command wasn't found on the default path. If it is installed, specify its full launch path below.",
-    "envScenariosTitle": "Configuring environment variables can fix:",
-    "envScenarioApiKey": "Missing API key or access token (e.g. ANTHROPIC_API_KEY, OPENAI_API_KEY) — the common cause of \"needs sign-in\" / connection failures",
-    "envScenarioBaseUrl": "Custom API endpoint or gateway (e.g. ANTHROPIC_BASE_URL, OPENAI_BASE_URL) for self-hosted or proxied services",
-    "envScenarioProxy": "Network proxy settings (e.g. HTTPS_PROXY, HTTP_PROXY) when the agent cannot reach the internet directly",
-    "envOauthNote": "Note: this cannot replace an account login inside the CLI (e.g. signing in to Gemini with a Google account). For OAuth-based login, sign in via the CLI in a terminal."
   },
   "remoteAgent": {
     "title": "Agentes Remotos",
@@ -1166,7 +1152,59 @@
     "customAgent": "Custom Agent"
   },
   "updateReadyInstall": "{{version}} is ready, install now",
+  "assistantSourceCli": "CLI",
+  "assistantCliReadonlyTip": "This assistant is generated by Agents and is linked one-to-one with its CLI. Name, avatar, and main agent are locked; other settings are editable locally and will not be overwritten by updates.",
+  "browserNotification": {
+    "enable": "Habilitar notificaciones del navegador",
+    "granted": "Notificaciones del navegador habilitadas",
+    "denied": "Notificaciones bloqueadas — actívalas en la configuración del sitio de tu navegador",
+    "insecureContext": "Las notificaciones del navegador requieren HTTPS o acceso localhost",
+    "bodyConfirmation": "Un agente está esperando tu confirmación",
+    "bodyTurnCompleted": "El agente ha terminado de responder"
+  },
+  "repair": {
+    "pathLabel": "Launch Path",
+    "pathPlaceholder": "Currently using: {{command}}",
+    "pathHelp": "If the default path cannot be found, specify the full path here. Leave blank to use the default.",
+    "resetPath": "Reset to Default",
+    "envLabel": "Environment Variables",
+    "envHelp": "Some tools require API keys or access tokens to run, such as ANTHROPIC_API_KEY or FACTORY_API_KEY. Add one variable per row.",
+    "saveAndTest": "Save & Test",
+    "duplicateKeysError": "Duplicate environment variable names found. Please check and try again.",
+    "onlineTitle": "Connected",
+    "onlineHint": "A connection was established successfully. Note: \"online\" only means the agent is reachable — it does not mean it is logged in or authorized. If this tool needs an API key or access token, add it under Environment Variables below.",
+    "offlineTitle": "Connection failed",
+    "offlineHint": "The command was found but the connection failed. Check the error above, then adjust the launch path or environment variables below.",
+    "missingTitle": "Not detected",
+    "missingHint": "The command wasn't found on the default path. If it is installed, specify its full launch path below.",
+    "envScenariosTitle": "Configuring environment variables can fix:",
+    "envScenarioApiKey": "Missing API key or access token (e.g. ANTHROPIC_API_KEY, OPENAI_API_KEY) — the common cause of \"needs sign-in\" / connection failures",
+    "envScenarioBaseUrl": "Custom API endpoint or gateway (e.g. ANTHROPIC_BASE_URL, OPENAI_BASE_URL) for self-hosted or proxied services",
+    "envScenarioProxy": "Network proxy settings (e.g. HTTPS_PROXY, HTTP_PROXY) when the agent cannot reach the internet directly",
+    "envOauthNote": "Note: this cannot replace an account login inside the CLI (e.g. signing in to Gemini with a Google account). For OAuth-based login, sign in via the CLI in a terminal.",
+    "emptyOverridesError": "Enter a launch path or at least one environment variable before saving."
+  },
   "assistantAgentUnavailable": "The required agent is currently unavailable.",
+  "assistantAgentUnchecked": "The required agent has not been checked yet.",
   "assistantAgentMissing": "The required agent is not installed.",
-  "assistantTeamUnsupported": "This assistant cannot be used in team mode right now."
+  "assistantTeamUnsupported": "This assistant cannot be used in team mode right now.",
+  "webui.letButlerSetup": "Let the butler set it up",
+  "talkToButler": {
+    "createViaChat": "Create via chat",
+    "createManually": "Create manually",
+    "addViaChat": "Add via chat",
+    "addManually": "Add manually",
+    "solveViaChat": "Solve via chat",
+    "enabledToast": "Enabled the AionUi Butler for you",
+    "prompt": {
+      "createAssistant": "Help me create a new assistant and walk me through setting it up.",
+      "addCustomAgent": "Help me add a custom Agent.",
+      "addModel": "Help me add a new LLM provider and API key, then set it as the default model.",
+      "addMcp": "Help me set up an MCP server.",
+      "addSkill": "Help me import a skill and attach it to an assistant.",
+      "setupRemote": "Help me set up remote access so I can open AionUi from my phone or over the internet.",
+      "diagnose": "I ran into a problem with AionUi, please help me diagnose it.\n\n[Module] {{module}}\n[Description] {{description}}\n[Attachments] see the screenshots in the input.\n\nPlease diagnose the cause and tell me how to fix it."
+    }
+  },
+  "providerIdConflict": "El ID del proveedor ya existe. Inténtalo de nuevo."
 }

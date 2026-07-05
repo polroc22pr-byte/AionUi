@@ -27,5 +27,20 @@
     "configureFirst": "Por favor, configura un agente en Configuración primero.",
     "switching": "Cambiando agente..."
   },
-  "model": { "switchSuccess": "Modelo cambiado correctamente", "switchFailed": "Error al cambiar de modelo" }
+  "model": {
+    "switchSuccess": "Modelo cambiado correctamente",
+    "switchFailed": "Error al cambiar de modelo"
+  },
+  "config": {
+    "setting": "Aplicando configuración...",
+    "commandAck": "Comando enviado, pero el estado no está confirmado. Actualiza o intenta de nuevo.",
+    "timeout": "Confirmación de configuración expirada. Se muestra el estado anterior.",
+    "busy": "Se está aplicando otra configuración. Intenta más tarde.",
+    "failed": "Error al aplicar la configuración. Se muestra el estado anterior."
+  },
+  "thoughtLevel": {
+    "label": "Nivel de razonamiento",
+    "switchSuccess": "Nivel de razonamiento cambiado",
+    "switchFailed": "Error al cambiar el nivel de razonamiento"
+  }
 }

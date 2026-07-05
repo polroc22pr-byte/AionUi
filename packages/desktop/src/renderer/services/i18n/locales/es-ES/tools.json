@@ -4,19 +4,28 @@
   "deletedFile": "Archivo Eliminado",
   "modified": "Modificado",
   "fileChanges": "Cambios de Archivo",
-  "shell": { "displayName": "Comando Shell", "description": "Ejecutar comandos shell" },
+  "shell": {
+    "displayName": "Comando Shell",
+    "description": "Ejecutar comandos shell"
+  },
   "fileOps": {
     "displayName": "Operaciones de Archivo",
     "description": "Lectura, escritura y modificación de archivos"
   },
-  "webSearch": { "displayName": "Búsqueda Web", "description": "Buscar contenido web" },
+  "webSearch": {
+    "displayName": "Búsqueda Web",
+    "description": "Buscar contenido web"
+  },
   "mcp": {
     "generic": {
       "displayName": "Herramienta MCP: {{toolName}}",
       "description": "Llamada de herramienta MCP: {{toolName}}"
     }
   },
-  "unknown": { "displayName": "Herramienta Desconocida", "description": "Tipo de herramienta desconocido" },
+  "unknown": {
+    "displayName": "Herramienta Desconocida",
+    "description": "Tipo de herramienta desconocido"
+  },
   "status": {
     "pending": "Pendiente",
     "executing": "Ejecutando",
@@ -52,5 +61,9 @@
     "auto_approved": "Aprobado automáticamente",
     "manual_approval": "Aprobación manual"
   },
-  "actions": { "create": "crear", "modify": "modificar", "delete": "eliminar" }
+  "actions": {
+    "create": "crear",
+    "modify": "modificar",
+    "delete": "eliminar"
+  }
 }
